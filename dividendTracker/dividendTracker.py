@@ -128,14 +128,14 @@ def get_Dividend_Information_into_sqldb(conn, buy_dates, checkDF):
         try:
             df = get_and_clean_info_from_source(ticker)
                 
-            #Check if there is any data in the db
-            if result_dict:
+            #Check whether db is empty or if ticker is not in db (Newly added stock)
+            if result_dict and ticker in result_dict:
                 dfCleaned = df[~(df['Date'] <= result_dict[ticker])].reset_index(drop= True) #Get date from existing db
-            #If db is empty, use a default date to pull all dividends from that date onwards
+            #If db is empty or stock is newly bought, use a default date to pull all dividends from that date onwards
             else:
                 dfCleaned = df[~(df['Date'] <= buy_dates[ticker])].reset_index(drop= True) #Get date from excel
 
-            #Check if dfClean is empty or not, skips appending df to sqlite3 db if so
+            #Check if dfClean is empty or not, skips appending df to sqlite3 db if so (No new dividend information)
             if not dfCleaned.empty:
                 #Insert a column to keep track of stock's ticker symbol and amount of shares
                 dfCleaned.insert(0, 'Ticker', ticker)
@@ -164,6 +164,7 @@ def get_Dividend_Information_into_sqldb(conn, buy_dates, checkDF):
 '''
 Function for pulling stock price information from yfinance Module
 Returns a list of dicts that contains stock information
+    list of dicts will always be in the same order as shown in the Stock table in the main sheet
 '''
 def get_Stock_Information(conn):
     #Initialize an Empty list
@@ -208,22 +209,27 @@ def get_Stock_Information(conn):
 
 '''
 Function for writing the cleaned data into the excel sheet
+Only needs to iterate over each row in excel as the list of dicts will always be in the same order
+Added a check just in case
 '''
 def write_value_to_excel(data):
     #TargetRange have to include tickers and columns that need to be filled
     targetRange = mainSheet.range("B8:M8").options(expand='down').rows 
     counter = 0
+    
+    #Iterate over each row in the Stock table residing in the main sheet
     for row in targetRange:
         #Check if Dict's Ticker is the same as the Excel sheet's ticker (Just in case)
         if data[counter] and data[counter]["ticker"] == row[0].value:
             row[2].value = data[counter]["current_Price"] #'Current Price' Column
             row[3].value = data[counter]["last_close_Price"] #'Last Close Price' Column
             row[11].value = (data[counter]["total_dividend_to_Date"] - float(row[10].value)) #'Dividends Collected' Colummn, row[10] is the Miscellaneous Fees column
-        #If data is empty, replace nan with something
+        #If data is empty, replace nan with something (For delisted stocks like MNACT)
         elif not data[counter]:
             row[2].value = 0 #'Current Price' Column
             row[3].value = 0 #'Last Close Price' Column
             #For stocks that are delisted, like MNACT, dividends have to be manually keyed in :(
+        
         counter += 1
         
     #Write date and time of last update to cell above button to keep track of refreshes

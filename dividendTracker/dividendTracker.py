@@ -209,12 +209,14 @@ def get_Stock_Information(conn):
 
 '''
 Function for writing the cleaned data into the excel sheet
-Only needs to iterate over each row in excel as the list of dicts will always be in the same order
+Only needs to iterate over each row in excel as the list of dicts will always be in the same order and size
 Added a check just in case
 '''
 def write_value_to_excel(data):
     #TargetRange have to include tickers and columns that need to be filled
-    targetRange = mainSheet.range("B8:M8").options(expand='down').rows 
+    last_col = mainSheet.range("B8").end('right').column
+    last_row = mainSheet.range("B8").end('down').row
+    targetRange = mainSheet.range((8,2), (last_row, last_col)).rows
     counter = 0
     
     #Iterate over each row in the Stock table residing in the main sheet

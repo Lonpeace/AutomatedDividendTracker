@@ -261,7 +261,7 @@ if __name__ == "__main__":
 wb = xw.Book.caller()
 #Sheets in the excel workbook
 mainSheet = wb.sheets('Portfolio')
-graphs = wb.sheets('Graphs')
+# graphs = wb.sheets('Graphs')
 buyTransac = wb.sheets('Buy_Transactions')
 #sellTransac = wb.sheets('Sell_Transactions')
 ref = wb.sheets('Ref')

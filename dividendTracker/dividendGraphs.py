@@ -4,19 +4,31 @@ import matplotlib.pyplot as plt
 
 def portfolioByCostGraph():
     # Get costs from mainsheet  
-    cost = mainSheet.range("A1:B4").options(convert=pd.DataFrame).value.reset_index()
+    cost = mainSheet.range("A1:B4").options(convert=pd.DataFrame).value
     # Cast the column "Cost" as a float
     cost = cost.astype({'Cost': 'float64'})
-    # Round the values in column "Cost" to 2 d.p
-    cost["Cost"] = cost["Cost"].round(2)
+    
+    # Create autopct function as label
+    def pctLabel(pct, series):
+        total = series.sum()
+        val = float(round(pct * total/100, 2))
+        return f"${val:.2f}\n({pct:.2f}%)"
     
     fig, ax = plt.subplots()
-    ax.pie(cost["Cost"], labels= cost["Cost"])
-    ax.legend(cost["index"],
+    
+    # Create pie chart
+    ax.pie(cost["Cost"], autopct= lambda pct: pctLabel(pct, cost["Cost"]), pctdistance= 1.25)
+    
+    # Create legend
+    ax.legend(cost.index,
+              fontsize= "small",
               loc= "upper left",
               bbox_to_anchor= (1, 0, 1.5, 1))
+    
+    # Set chart title
     ax.set_title("Portfolio by Cost")
     
+    # Add to excel, or update if already exists
     graphs.pictures.add(fig, name= "test1", update=True)
     
 def graph2():

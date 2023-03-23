@@ -1,6 +1,7 @@
 import xlwings as xw
 import pandas as pd
 import matplotlib.pyplot as plt
+import sqlite3
 
 def portfolioByCostGraph():
     # Get costs from mainsheet  
@@ -29,20 +30,40 @@ def portfolioByCostGraph():
     ax.set_title("Portfolio by Cost")
     
     # Add to excel, or update if already exists
-    graphs.pictures.add(fig, name= "test1", update=True)
+    graphs.pictures.add(fig, name= "pbcGraph", update=True)
     
-def graph2():
-    x = [3, 6, 9, 12, 15]
-    y = [2, 4, 6, 8, 10]
+def divPerYearGraph(conn):
+    hkd2sgd = ref['B2'].value
+    usd2sgd = ref['B3'].value
+    
+    sqlQuery = f'''SELECT STRFTIME("%Y", date) AS divYear,
+                CASE 
+                    WHEN ticker LIKE "%.HK" THEN dividends * amount_of_shares * {hkd2sgd}
+                    WHEN ticker = "H78.SI" THEN dividends * amount_of_shares * {usd2sgd}
+                    ELSE dividends * amount_of_shares
+                END as totalDiv
+                FROM dividends'''
+    
+    df = pd.read_sql_query(sqlQuery, conn)
+    plot_df = df.groupby(["divYear"])["totalDiv"].sum()
     
     fig, ax = plt.subplots()
-    ax.plot(x, y)
+    bars = ax.bar(plot_df.index, plot_df)
     
-    graphs.pictures.add(fig, name= "test2", update=True)
+    # Label bars
+    ax.bar_label(bars, fmt= "${:,.2f}")
+    
+    # Set chart title
+    ax.set_title("Dividends collected per Year")
+    
+    graphs.pictures.add(fig, name= "dpyGraph", update=True)
 
 def main():
+    conn = sqlite3.connect(r"C:\Users\Zhen Xuan\OneDrive\Desktop\CodingStuff\PersonalProjects\AutomatedDividendTracker\dividend_record.db")
     portfolioByCostGraph()
-    graph2()
+    divPerYearGraph(conn)
+    
+    conn.close()
 
 if __name__ == "__main__":
     xw.Book("dividendTracker.xlsm").set_mock_caller()
@@ -53,3 +74,4 @@ if __name__ == "__main__":
 wb = xw.Book.caller()
 mainSheet = wb.sheets('Portfolio')
 graphs = wb.sheets('Graphs')
+ref = wb.sheets('Ref')

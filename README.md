@@ -1,4 +1,4 @@
-# Simple Dividend Tracker
+# Automated Dividend Tracker
 
 Hello, this is my attempt at creating a dividend tracker with MS Excel, Python and xlwings, tailored for a specific kind of dividend traders.
 
@@ -6,8 +6,20 @@ If you are a person who rarely buy or sell any new stocks, and is fustrated with
 
 For this application to run, you would need to have installed Python (3.11.1), xlwings, MS Excel, yfinance and pandas. (Versions shown in requirements.txt)
 
-For the Portfolio sheet, lets call it the main sheet, only the column "Miscellaneous Fees" has to be keyed in manually. And if your stock has been delisted on Yahoo Finance, like "Mapletree NAC Tr" that is shown below, its dividends will have to be keyed in manually too. :(
-
-Sadly, for the buy and sell transactions, you would still have to manually key in the values. If you buy a new stock, make sure to update the 2nd table in the main sheet.
+Click the "Click me to Refresh Sheet" button to get the latest stock prices, currency rates, and dividend information.
 
 ![image](https://user-images.githubusercontent.com/79985278/219069359-c0a0e9f7-9276-401a-852b-a2ed6e44a719.png)
+
+## Notes
+For the Portfolio sheet, or the main sheet as shown below, only the column "Miscellaneous Fees" has to be keyed in manually. These fees includes custodian fees and other fees that are deducted from your dividend income, and not fees that are incurred during the buying or selling of shares.
+
+If there is a stock that has been delisted on Yahoo Finance, its dividends will have to be keyed in manually too. For example, the stock "Mapletree NAC Tr" shown below has been merged together with another stock to form "Mapletree Panasia Com Tr", causing it to be delisted from Yahoo Finance and losing all historical data of it's dividends.
+
+Sadly, for the buy and sell transactions, you would still have to manually key in the values up to the "Fees" column, as shown in the tables below.
+
+Buy transaction sheet
+![image](https://user-images.githubusercontent.com/79985278/230271341-f5bf6b9c-adda-4c43-99dd-8004eb6dc4cb.png) 
+
+Sell transaction sheet
+![image](https://user-images.githubusercontent.com/79985278/230271395-bc238f60-9acc-433d-b0bb-98cd00f12ed7.png)
+
